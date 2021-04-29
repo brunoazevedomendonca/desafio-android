@@ -3,6 +3,7 @@ package com.picpay.desafio.android.common
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.picpay.desafio.android.data.remote.PicPayRDS
+import com.picpay.desafio.android.data.repository.UserRepository
 import com.picpay.desafio.android.presentation.scenes.userlist.UserListViewModel
 import io.reactivex.disposables.CompositeDisposable
 import okhttp3.OkHttpClient
@@ -33,7 +34,9 @@ val appModule = module {
 
     single<PicPayRDS> { get<Retrofit>().create(PicPayRDS::class.java) }
 
+    single<UserRepository> { UserRepository(get<PicPayRDS>()) }
+
     single<CompositeDisposable> { CompositeDisposable() }
 
-    viewModel { UserListViewModel(get<PicPayRDS>(), get<CompositeDisposable>()) }
+    viewModel { UserListViewModel(get<UserRepository>(), get<CompositeDisposable>()) }
 }
