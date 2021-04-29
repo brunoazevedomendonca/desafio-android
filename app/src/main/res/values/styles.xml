@@ -14,4 +14,10 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="ScreenToolBar" parent="Widget.AppCompat.Toolbar">
+        <item name="background">?attr/colorPrimary</item>
+        <item name="elevation">4dp</item>
+        <item name="titleTextColor">@android:color/white</item>
+    </style>
+
 </resources>
