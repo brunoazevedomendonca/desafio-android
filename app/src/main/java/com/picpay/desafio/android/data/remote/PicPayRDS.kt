@@ -1,11 +1,11 @@
 package com.picpay.desafio.android.data.remote
 
 import com.picpay.desafio.android.data.remote.model.User
-import retrofit2.Call
+import io.reactivex.Single
 import retrofit2.http.GET
 
 interface PicPayRDS {
 
     @GET("users")
-    fun getUsers(): Call<List<User>>
+    fun getUsers(): Single<List<User>>
 }

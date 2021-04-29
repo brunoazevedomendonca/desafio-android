@@ -4,14 +4,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.picpay.desafio.android.data.remote.PicPayRDS
-import com.picpay.desafio.android.presentation.scenes.common.ScreenState
 import com.picpay.desafio.android.data.remote.model.User
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.picpay.desafio.android.presentation.scenes.common.ScreenState
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.schedulers.Schedulers
 
 class UserListViewModel(
-    picPayRDS: PicPayRDS
+    picPayRDS: PicPayRDS,
+    private val compositeDisposable: CompositeDisposable
 ) : ViewModel() {
 
     private val _screenState: MutableLiveData<ScreenState<List<User>>> = MutableLiveData()
@@ -22,20 +24,17 @@ class UserListViewModel(
         _screenState.value = ScreenState.Loading
 
         picPayRDS.getUsers()
-            .enqueue(object : Callback<List<User>> {
-                override fun onFailure(call: Call<List<User>>, t: Throwable) {
-                    _screenState.value = ScreenState.Error
-                }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { _screenState.value = ScreenState.Success(it) },
+                { _screenState.value = ScreenState.Error }
+            ).addTo(compositeDisposable)
+    }
 
-                override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
-                    if (response.isSuccessful && response.body() != null) {
-                        _screenState.value = ScreenState.Success(response.body()!!)
-                    } else {
-                        _screenState.value = ScreenState.Error
-                    }
-
-                }
-            })
+    override fun onCleared() {
+        super.onCleared()
+        compositeDisposable.clear()
     }
 
 }
