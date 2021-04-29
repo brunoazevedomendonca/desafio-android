@@ -1,4 +1,4 @@
-package com.picpay.desafio.android
+package com.picpay.desafio.android.presentation.scenes.userlist
 
 import android.os.Bundle
 import android.view.View
@@ -6,26 +6,28 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.picpay.desafio.android.databinding.ActivityMainBinding
+import com.picpay.desafio.android.R
+import com.picpay.desafio.android.presentation.scenes.common.ScreenState
+import com.picpay.desafio.android.databinding.ActivityUserListBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+class UserListActivity : AppCompatActivity(R.layout.activity_user_list) {
 
-    private val mainViewModel: MainViewModel by viewModel()
+    private val userListViewModel: UserListViewModel by viewModel()
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityUserListBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityUserListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val adapter = UserListAdapter()
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
-        mainViewModel.screenState.observe(this) {
+        userListViewModel.screenState.observe(this) {
             when (it) {
                 is ScreenState.Success -> {
                     adapter.users = it.data

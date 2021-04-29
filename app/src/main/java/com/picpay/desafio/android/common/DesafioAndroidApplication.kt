@@ -1,6 +1,7 @@
-package com.picpay.desafio.android
+package com.picpay.desafio.android.common
 
 import android.app.Application
+import com.picpay.desafio.android.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin

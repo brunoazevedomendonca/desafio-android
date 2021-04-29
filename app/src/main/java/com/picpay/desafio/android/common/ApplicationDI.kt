@@ -2,6 +2,8 @@ package com.picpay.desafio.android
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.picpay.desafio.android.data.remote.PicPayRDS
+import com.picpay.desafio.android.presentation.scenes.userlist.UserListViewModel
 import okhttp3.OkHttpClient
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -24,7 +26,7 @@ val appModule = module {
             .build()
     }
 
-    single<PicPayService> { get<Retrofit>().create(PicPayService::class.java) }
+    single<PicPayRDS> { get<Retrofit>().create(PicPayRDS::class.java) }
 
-    viewModel { MainViewModel(get<PicPayService>()) }
+    viewModel { UserListViewModel(get<PicPayRDS>()) }
 }

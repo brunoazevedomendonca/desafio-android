@@ -1,4 +1,4 @@
-package com.picpay.desafio.android
+package com.picpay.desafio.android.presentation.scenes.common
 
 sealed class ScreenState<out T> {
     class Success<out T>(val data: T): ScreenState<T>()
