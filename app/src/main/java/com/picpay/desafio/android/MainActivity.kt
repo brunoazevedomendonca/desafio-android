@@ -4,14 +4,14 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.picpay.desafio.android.databinding.ActivityMainBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
-    private lateinit var viewModel: MainViewModel
+    private val mainViewModel: MainViewModel by viewModel()
 
     private lateinit var binding: ActivityMainBinding
 
@@ -25,9 +25,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-
-        viewModel.screenState.observe(this) {
+        mainViewModel.screenState.observe(this) {
             when (it) {
                 is ScreenState.Success -> {
                     adapter.users = it.data
