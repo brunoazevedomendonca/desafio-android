@@ -13,7 +13,16 @@ class DesafioAndroidApplication : Application() {
         startKoin {
             androidLogger()
             androidContext(this@DesafioAndroidApplication)
-            modules(appModule)
+            modules(
+                listOf(
+                    remoteModule,
+                    cacheModule,
+                    repositoryModule,
+                    rxModule,
+                    viewModelModule,
+                    useCaseModule
+                )
+            )
         }
     }
 }

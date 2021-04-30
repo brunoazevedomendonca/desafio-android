@@ -1,28 +1,25 @@
 package com.picpay.desafio.android.data.repository
 
 import com.picpay.desafio.android.data.cache.UserCDS
-import com.picpay.desafio.android.data.cache.model.UserCM
 import com.picpay.desafio.android.data.mappers.toCacheModel
+import com.picpay.desafio.android.data.mappers.toDomainModel
 import com.picpay.desafio.android.data.remote.UserRDS
+import com.picpay.domain.datarepository.UserDataRepository
+import com.picpay.domain.model.User
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 
 class UserRepository(
     private val userRDS: UserRDS,
     private val userCDS: UserCDS
-) {
+) : UserDataRepository {
 
-    fun refreshUsers() : Completable =
+    override fun refreshUsers(): Completable =
         userRDS.getUsers()
             .map { it.map { it.toCacheModel() } }
             .flatMapCompletable { userCDS.upsertUserList(it) }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
 
-    fun getUsers(): Observable<List<UserCM>> =
+    override fun getUsers(): Observable<List<User>> =
         userCDS.getUserList()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+            .map { it.map { it.toDomainModel() } }
 }
