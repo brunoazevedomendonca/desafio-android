@@ -15,7 +15,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.junit.Test
 
 
-class UserListActivityTest {
+class UserRMListActivityTest {
 
     private val server = MockWebServer()
 

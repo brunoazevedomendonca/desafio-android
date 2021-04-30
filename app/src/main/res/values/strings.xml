@@ -2,5 +2,5 @@
     <string name="app_name">PicPay</string>
     <string name="title">Contatos</string>
     <string name="error">Ocorreu um erro. Tente novamente.</string>
-
+    <string name="refresh_error">Ocorreu um erro ao atualizar os dados. Tente novamente mais tarde.</string>
 </resources>

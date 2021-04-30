@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.picpay.desafio.android.R
 import com.picpay.desafio.android.presentation.scenes.common.ScreenState
@@ -27,7 +26,11 @@ class UserListActivity : AppCompatActivity(R.layout.activity_user_list) {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
+        binding.swipeRefresh.setOnRefreshListener { userListViewModel.onRefresh() }
+
         userListViewModel.screenState.observe(this) {
+            binding.swipeRefresh.isRefreshing = false
+
             when (it) {
                 is ScreenState.Success -> {
                     adapter.users = it.data
@@ -44,6 +47,14 @@ class UserListActivity : AppCompatActivity(R.layout.activity_user_list) {
                     Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show()
                 }
             }
+        }
+
+        userListViewModel.refreshError.observe(this) { event ->
+            event.executeIfNotHandled {
+                binding.swipeRefresh.isRefreshing = false
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            }
+
         }
     }
 }

@@ -1,12 +1,17 @@
 package com.picpay.desafio.android.common
 
+import androidx.room.Room
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.picpay.desafio.android.data.remote.PicPayRDS
+import com.picpay.desafio.android.data.cache.UserCDS
+import com.picpay.desafio.android.data.cache.dao.UserDao
+import com.picpay.desafio.android.data.cache.infrastructure.AppDatabase
+import com.picpay.desafio.android.data.remote.UserRDS
 import com.picpay.desafio.android.data.repository.UserRepository
 import com.picpay.desafio.android.presentation.scenes.userlist.UserListViewModel
 import io.reactivex.disposables.CompositeDisposable
 import okhttp3.OkHttpClient
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -32,9 +37,21 @@ val appModule = module {
             .build()
     }
 
-    single<PicPayRDS> { get<Retrofit>().create(PicPayRDS::class.java) }
+    single<UserRDS> { get<Retrofit>().create(UserRDS::class.java) }
 
-    single<UserRepository> { UserRepository(get<PicPayRDS>()) }
+    single<AppDatabase> {
+        Room.databaseBuilder(
+            androidContext(),
+            AppDatabase::class.java,
+            "app-database"
+        ).build()
+    }
+
+    single<UserDao> { get<AppDatabase>().userDao() }
+
+    single<UserCDS> { UserCDS(get<UserDao>()) }
+
+    single<UserRepository> { UserRepository(get<UserRDS>(), get<UserCDS>()) }
 
     single<CompositeDisposable> { CompositeDisposable() }
 
