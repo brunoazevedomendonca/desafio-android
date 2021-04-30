@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.picpay.desafio.android.R
 import com.picpay.desafio.android.data.cache.model.UserCM
 import com.picpay.desafio.android.data.repository.UserRepository
-import com.picpay.desafio.android.presentation.scenes.common.Event
-import com.picpay.desafio.android.presentation.scenes.common.ScreenState
+import com.picpay.desafio.android.presentation.common.Event
+import com.picpay.desafio.android.presentation.common.ScreenState
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 

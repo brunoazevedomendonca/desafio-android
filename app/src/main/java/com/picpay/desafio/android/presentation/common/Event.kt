@@ -1,4 +1,4 @@
-package com.picpay.desafio.android.presentation.scenes.common
+package com.picpay.desafio.android.presentation.common
 
 class Event<T>(private val content: T) {
 
