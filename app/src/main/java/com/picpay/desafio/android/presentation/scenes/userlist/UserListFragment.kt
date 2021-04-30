@@ -14,6 +14,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class UserListFragment : Fragment() {
 
+    companion object {
+        fun newInstance() = UserListFragment()
+    }
+
     private val userListViewModel: UserListViewModel by viewModel()
 
     private lateinit var binding: FragmentUserListBinding
@@ -28,7 +32,6 @@ class UserListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
         val adapter = UserListAdapter()
         binding.recyclerView.adapter = adapter

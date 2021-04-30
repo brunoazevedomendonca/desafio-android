@@ -20,6 +20,7 @@ class DesafioAndroidApplication : Application() {
                     repositoryModule,
                     rxModule,
                     viewModelModule,
+                    navigationModule,
                     useCaseModule
                 )
             )

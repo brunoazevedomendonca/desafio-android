@@ -1,6 +1,9 @@
 package com.picpay.desafio.android.common
 
 import androidx.room.Room
+import com.github.terrakok.cicerone.Cicerone
+import com.github.terrakok.cicerone.NavigatorHolder
+import com.github.terrakok.cicerone.Router
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.picpay.desafio.android.data.cache.UserCDS
@@ -90,6 +93,15 @@ val viewModelModule = module {
             get<CompositeDisposable>()
         )
     }
+}
+
+val navigationModule = module {
+
+    single<Cicerone<Router>> { Cicerone.create() }
+
+    single<Router> { get<Cicerone<Router>>().router }
+
+    single<NavigatorHolder> { get<Cicerone<Router>>().getNavigatorHolder() }
 }
 
 val useCaseModule = module {
