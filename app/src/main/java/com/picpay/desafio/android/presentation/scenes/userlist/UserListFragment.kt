@@ -1,30 +1,38 @@
 package com.picpay.desafio.android.presentation.scenes.userlist
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.picpay.desafio.android.R
+import com.picpay.desafio.android.databinding.FragmentUserListBinding
 import com.picpay.desafio.android.presentation.common.ScreenState
-import com.picpay.desafio.android.databinding.ActivityUserListBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class UserListActivity : AppCompatActivity(R.layout.activity_user_list) {
+class UserListFragment : Fragment() {
 
     private val userListViewModel: UserListViewModel by viewModel()
 
-    private lateinit var binding: ActivityUserListBinding
+    private lateinit var binding: FragmentUserListBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentUserListBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        binding = ActivityUserListBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
 
         val adapter = UserListAdapter()
         binding.recyclerView.adapter = adapter
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         binding.swipeRefresh.setOnRefreshListener { userListViewModel.onRefresh() }
 
@@ -44,7 +52,7 @@ class UserListActivity : AppCompatActivity(R.layout.activity_user_list) {
                 is ScreenState.Error -> {
                     binding.recyclerView.visibility = View.GONE
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), R.string.error, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -52,7 +60,7 @@ class UserListActivity : AppCompatActivity(R.layout.activity_user_list) {
         userListViewModel.refreshError.observe(this) { event ->
             event.executeIfNotHandled {
                 binding.swipeRefresh.isRefreshing = false
-                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
             }
 
         }
