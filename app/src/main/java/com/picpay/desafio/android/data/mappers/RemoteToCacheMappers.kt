@@ -4,4 +4,4 @@ import com.picpay.desafio.android.data.cache.model.UserCM
 import com.picpay.desafio.android.data.remote.model.UserRM
 
 fun UserRM.toCacheModel(): UserCM =
-    UserCM(id, img, name, username)
+    UserCM(id, username, name, img)

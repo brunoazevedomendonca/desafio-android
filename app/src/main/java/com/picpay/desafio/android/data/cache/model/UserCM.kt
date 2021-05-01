@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "user")
 data class UserCM(
-    @PrimaryKey val id: Int,
-    @ColumnInfo(name = "image") val img: String,
+    @PrimaryKey val uid: Int,
+    @ColumnInfo(name = "username") val username: String,
     @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "username") val username: String
+    @ColumnInfo(name = "image_url") val imageUrl: String
 )

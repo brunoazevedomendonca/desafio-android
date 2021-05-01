@@ -16,8 +16,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private val navigatorHolder: NavigatorHolder by inject()
     private val router: Router by inject()
-    private val appNavigator: AppNavigator =
+    private val appNavigator: AppNavigator by lazy {
         AppNavigator(this, R.id.frmContainer, supportFragmentManager)
+    }
 
     private val initialScreen = userListScreen()
 

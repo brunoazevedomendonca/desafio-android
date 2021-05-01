@@ -2,21 +2,21 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1c6348175870c9e6d131af7e8418d207",
+    "identityHash": "f9341f2a9d6a38590e2a92c89d785eea",
     "entities": [
       {
         "tableName": "user",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `image` TEXT NOT NULL, `name` TEXT NOT NULL, `username` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER NOT NULL, `username` TEXT NOT NULL, `name` TEXT NOT NULL, `image_url` TEXT NOT NULL, PRIMARY KEY(`uid`))",
         "fields": [
           {
-            "fieldPath": "id",
-            "columnName": "id",
+            "fieldPath": "uid",
+            "columnName": "uid",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "img",
-            "columnName": "image",
+            "fieldPath": "username",
+            "columnName": "username",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -27,15 +27,15 @@
             "notNull": true
           },
           {
-            "fieldPath": "username",
-            "columnName": "username",
+            "fieldPath": "imageUrl",
+            "columnName": "image_url",
             "affinity": "TEXT",
             "notNull": true
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "uid"
           ],
           "autoGenerate": false
         },
@@ -46,7 +46,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1c6348175870c9e6d131af7e8418d207')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f9341f2a9d6a38590e2a92c89d785eea')"
     ]
   }
 }

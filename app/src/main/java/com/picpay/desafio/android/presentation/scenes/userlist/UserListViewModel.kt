@@ -13,7 +13,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 
 class UserListViewModel(
-    getUsersUC: GetUsersUC,
+    private val getUsersUC: GetUsersUC,
     private val refreshUsersUC: RefreshUsersUC,
     private val compositeDisposable: CompositeDisposable
 ) : ViewModel() {
@@ -35,8 +35,11 @@ class UserListViewModel(
         get() = _message
 
     init {
-        refreshUserList()
+        refreshUsers()
+        getUsers()
+    }
 
+    private fun getUsers() {
         getUsersUC.getObservable(Unit)
             .doOnSubscribe { _screenState.value = ScreenState.LOADING }
             .doOnError { _screenState.value = ScreenState.ERROR }
@@ -48,7 +51,7 @@ class UserListViewModel(
             .addTo(compositeDisposable)
     }
 
-    private fun refreshUserList() {
+    private fun refreshUsers() {
         refreshUsersUC.getCompletable(Unit)
             .doOnError { _message.value = Event(R.string.refresh_error) }
             .doOnComplete { _isRefreshing.value = false }
@@ -58,7 +61,11 @@ class UserListViewModel(
     }
 
     fun onRefresh() {
-        refreshUserList()
+        refreshUsers()
+    }
+
+    fun onTryAgain() {
+        getUsers()
     }
 
     override fun onCleared() {

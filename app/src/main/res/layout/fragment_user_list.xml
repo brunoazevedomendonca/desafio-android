@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.picpay.desafio.android.presentation.scenes.userlist.UserListViewModel" />
@@ -27,8 +28,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/toolbar"
+            app:onRefreshListener="@{() -> viewModel.onRefresh()}"
             app:refreshing="@{viewModel.isRefreshing()}"
-            app:onRefreshListener="@{() -> viewModel.onRefresh()}">
+            app:showIfSuccessState="@{viewModel.screenState}">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
@@ -47,7 +49,29 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:visibility="gone"
-            app:showIfLoadingState="@{viewModel.screenState}"/>
+            app:showIfLoadingState="@{viewModel.screenState}" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/tryAgain"
+            style="@style/ScreenErrorTextView"
+            android:layout_margin="16dp"
+            android:gravity="center"
+            android:text="@string/error"
+            android:visibility="gone"
+            app:showIfErrorState="@{viewModel.screenState}" />
+
+        <Button
+            android:id="@+id/tryAgain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginHorizontal="16dp"
+            android:onClick="@{() -> viewModel.onTryAgain()}"
+            android:text="@string/try_again"
+            android:visibility="gone"
+            app:showIfErrorState="@{viewModel.screenState}" />
 
     </RelativeLayout>
 </layout>

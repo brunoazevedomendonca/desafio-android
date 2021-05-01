@@ -14,7 +14,7 @@ import com.picpay.desafio.android.data.repository.UserRepository
 import com.picpay.desafio.android.presentation.scenes.userlist.UserListViewModel
 import com.picpay.domain.datarepository.UserDataRepository
 import com.picpay.domain.di.MainScheduler
-import com.picpay.domain.di.WorkerScheduler
+import com.picpay.domain.di.IOScheduler
 import com.picpay.domain.usecase.GetUsersUC
 import com.picpay.domain.usecase.RefreshUsersUC
 import io.reactivex.Scheduler
@@ -80,7 +80,7 @@ val rxModule = module {
 
     single<Scheduler>(qualifier = MainScheduler) { AndroidSchedulers.mainThread() }
 
-    factory<Scheduler>(qualifier = WorkerScheduler) { Schedulers.io() }
+    factory<Scheduler>(qualifier = IOScheduler) { Schedulers.io() }
 
 }
 
@@ -108,7 +108,7 @@ val useCaseModule = module {
 
     factory<RefreshUsersUC> {
         RefreshUsersUC(
-            get<Scheduler>(qualifier = WorkerScheduler),
+            get<Scheduler>(qualifier = IOScheduler),
             get<Scheduler>(qualifier = MainScheduler),
             get<UserDataRepository>()
         )
@@ -116,7 +116,7 @@ val useCaseModule = module {
 
     factory<GetUsersUC> {
         GetUsersUC(
-            get<Scheduler>(qualifier = WorkerScheduler),
+            get<Scheduler>(qualifier = IOScheduler),
             get<Scheduler>(qualifier = MainScheduler),
             get<UserDataRepository>()
         )

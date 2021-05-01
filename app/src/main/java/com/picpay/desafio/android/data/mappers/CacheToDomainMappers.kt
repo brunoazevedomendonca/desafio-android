@@ -4,4 +4,4 @@ import com.picpay.desafio.android.data.cache.model.UserCM
 import com.picpay.domain.model.User
 
 fun UserCM.toDomainModel(): User =
-    User(username, name, img)
+    User(uid, username, name, imageUrl)

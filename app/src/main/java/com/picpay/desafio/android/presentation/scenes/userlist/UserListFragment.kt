@@ -1,5 +1,6 @@
 package com.picpay.desafio.android.presentation.scenes.userlist
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,11 +18,17 @@ class UserListFragment : Fragment() {
     }
 
     private val userListViewModel: UserListViewModel by viewModel()
-
     private lateinit var binding: FragmentUserListBinding
+    private lateinit var layoutManager: LinearLayoutManager
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        layoutManager = LinearLayoutManager(context)
+    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentUserListBinding.inflate(inflater, container, false)
@@ -36,15 +43,17 @@ class UserListFragment : Fragment() {
 
         val adapter = UserListAdapter()
         binding.recyclerView.adapter = adapter
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.layoutManager = layoutManager
 
         userListViewModel.users.observe(this) {
             adapter.users = it
         }
 
         userListViewModel.message.observe(this) { event ->
-            event.executeIfNotHandled {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+            event.executeIfNotHandled { messageId ->
+                context?.let {
+                    Toast.makeText(it, messageId, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

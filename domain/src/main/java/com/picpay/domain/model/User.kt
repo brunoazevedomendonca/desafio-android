@@ -1,7 +1,8 @@
 package com.picpay.domain.model
 
 data class User(
-    val userName: String,
+    val id: Int,
+    val username: String,
     val name: String,
-    val image: String
+    val imageUrl: String
 )
