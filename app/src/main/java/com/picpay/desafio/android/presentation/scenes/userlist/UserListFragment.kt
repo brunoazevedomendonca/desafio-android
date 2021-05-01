@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.picpay.desafio.android.R
 import com.picpay.desafio.android.databinding.FragmentUserListBinding
+import com.picpay.desafio.android.presentation.common.navigation.ScreenContainer
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class UserListFragment : Fragment() {
@@ -37,6 +39,8 @@ class UserListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        (requireActivity() as ScreenContainer).setToolbarTitle(R.string.user_list_screen_title)
 
         binding.lifecycleOwner = this
         binding.viewModel = userListViewModel

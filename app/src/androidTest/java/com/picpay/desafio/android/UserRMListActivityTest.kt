@@ -24,7 +24,7 @@ class UserRMListActivityTest {
     @Test
     fun shouldDisplayTitle() {
         launchActivity<MainActivity>().apply {
-            val expectedTitle = context.getString(R.string.title)
+            val expectedTitle = context.getString(R.string.user_list_screen_title)
 
             moveToState(Lifecycle.State.RESUMED)
 

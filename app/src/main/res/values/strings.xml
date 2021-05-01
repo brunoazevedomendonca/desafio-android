@@ -1,9 +1,7 @@
 <resources>
     <string name="app_name">PicPay</string>
-    <string name="title">Contatos</string>
-    <string name="error">Ocorreu um erro. Tente novamente.</string>
+    <string name="user_list_screen_title">Contatos</string>
+    <string name="generic_error">Ocorreu um erro. Tente novamente.</string>
     <string name="refresh_error">Ocorreu um erro ao atualizar os dados. Tente novamente mais tarde.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="try_again">Tentar novamente</string>
 </resources>

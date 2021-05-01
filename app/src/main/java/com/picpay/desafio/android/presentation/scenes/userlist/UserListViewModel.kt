@@ -46,7 +46,7 @@ class UserListViewModel(
             .doOnNext { _screenState.value = ScreenState.SUCCESS }
             .subscribe(
                 { _users.value = it },
-                { _message.value = Event(R.string.error) }
+                { _message.value = Event(R.string.generic_error) }
             )
             .addTo(compositeDisposable)
     }

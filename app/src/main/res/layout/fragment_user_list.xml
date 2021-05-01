@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".presentation.scenes.userlist.UserListFragment">
 
     <data>
 
@@ -10,24 +11,15 @@
             type="com.picpay.desafio.android.presentation.scenes.userlist.UserListViewModel" />
     </data>
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark"
-        tools:context=".presentation.common.MainActivity">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            style="@style/ScreenToolBar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="@string/title" />
+        android:layout_height="match_parent">
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/toolbar"
+            app:layout_constraintTop_toTopOf="parent"
             app:onRefreshListener="@{() -> viewModel.onRefresh()}"
             app:refreshing="@{viewModel.isRefreshing()}"
             app:showIfSuccessState="@{viewModel.screenState}">
@@ -47,31 +39,37 @@
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:showIfLoadingState="@{viewModel.screenState}" />
 
         <TextView
+            style="@style/ScreenErrorTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@id/tryAgain"
-            style="@style/ScreenErrorTextView"
             android:layout_margin="16dp"
             android:gravity="center"
-            android:text="@string/error"
+            android:text="@string/generic_error"
             android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/tryAgain"
             app:showIfErrorState="@{viewModel.screenState}" />
 
         <Button
             android:id="@+id/tryAgain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:layout_marginHorizontal="16dp"
             android:onClick="@{() -> viewModel.onTryAgain()}"
             android:text="@string/try_again"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:showIfErrorState="@{viewModel.screenState}" />
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
