@@ -18,28 +18,40 @@ class UserListViewModel(
     private val compositeDisposable: CompositeDisposable
 ) : ViewModel() {
 
-    private val _screenState: MutableLiveData<ScreenState<List<User>>> = MutableLiveData()
-    val screenState: LiveData<ScreenState<List<User>>>
+    private val _users: MutableLiveData<List<User>> = MutableLiveData()
+    val users: LiveData<List<User>>
+        get() = _users
+
+    private val _screenState: MutableLiveData<ScreenState> = MutableLiveData()
+    val screenState: LiveData<ScreenState>
         get() = _screenState
 
-    private val _refreshError: MutableLiveData<Event<Int>> = MutableLiveData()
-    val refreshError: LiveData<Event<Int>>
-        get() = _refreshError
+    private val _isRefreshing: MutableLiveData<Boolean> = MutableLiveData()
+    val isRefreshing: LiveData<Boolean>
+        get() = _isRefreshing
+
+    private val _message: MutableLiveData<Event<Int>> = MutableLiveData()
+    val message: LiveData<Event<Int>>
+        get() = _message
 
     init {
         refreshUserList()
 
         getUsersUC.getObservable(Unit)
-            .doOnSubscribe { _screenState.value = ScreenState.Loading }
+            .doOnSubscribe { _screenState.value = ScreenState.LOADING }
+            .doOnError { _screenState.value = ScreenState.ERROR }
+            .doOnNext { _screenState.value = ScreenState.SUCCESS }
             .subscribe(
-                { _screenState.value = ScreenState.Success(it) },
-                { _screenState.value = ScreenState.Error }
-            ).addTo(compositeDisposable)
+                { _users.value = it },
+                { _message.value = Event(R.string.error) }
+            )
+            .addTo(compositeDisposable)
     }
 
     private fun refreshUserList() {
         refreshUsersUC.getCompletable(Unit)
-            .doOnError { _refreshError.value = Event(R.string.refresh_error) }
+            .doOnError { _message.value = Event(R.string.refresh_error) }
+            .doOnComplete { _isRefreshing.value = false }
             .onErrorComplete()
             .subscribe()
             .addTo(compositeDisposable)

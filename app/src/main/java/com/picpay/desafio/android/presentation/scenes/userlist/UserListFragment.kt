@@ -7,9 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.picpay.desafio.android.R
 import com.picpay.desafio.android.databinding.FragmentUserListBinding
-import com.picpay.desafio.android.presentation.common.ScreenState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class UserListFragment : Fragment() {
@@ -33,39 +31,21 @@ class UserListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.lifecycleOwner = this
+        binding.viewModel = userListViewModel
+
         val adapter = UserListAdapter()
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        binding.swipeRefresh.setOnRefreshListener { userListViewModel.onRefresh() }
-
-        userListViewModel.screenState.observe(this) {
-            binding.swipeRefresh.isRefreshing = false
-
-            when (it) {
-                is ScreenState.Success -> {
-                    adapter.users = it.data
-                    binding.progressBar.visibility = View.GONE
-                    binding.recyclerView.visibility = View.VISIBLE
-                }
-                is ScreenState.Loading -> {
-                    binding.recyclerView.visibility = View.GONE
-                    binding.progressBar.visibility = View.VISIBLE
-                }
-                is ScreenState.Error -> {
-                    binding.recyclerView.visibility = View.GONE
-                    binding.progressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), R.string.error, Toast.LENGTH_SHORT).show()
-                }
-            }
+        userListViewModel.users.observe(this) {
+            adapter.users = it
         }
 
-        userListViewModel.refreshError.observe(this) { event ->
+        userListViewModel.message.observe(this) { event ->
             event.executeIfNotHandled {
-                binding.swipeRefresh.isRefreshing = false
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
             }
-
         }
     }
 }
