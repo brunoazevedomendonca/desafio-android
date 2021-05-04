@@ -27,11 +27,13 @@ class UserRepositoryTest {
 
     private val userRDS = mock<UserRDS>()
     private val userCDS = mock<UserCDS>()
+
     private val remoteUsers = listOf(UserRM(ID, USERNAME, NAME, IMAGE_URL))
     private val cacheUsers = listOf(UserCM(ID, USERNAME, NAME, IMAGE_URL))
     private val domainUsers = listOf(User(ID, USERNAME, NAME, IMAGE_URL))
     private val error = RuntimeException("test")
 
+    // System under test
     private lateinit var userRepository: UserRepository
 
     @Before
@@ -115,8 +117,6 @@ class UserRepositoryTest {
         //Then return a list of User
         testObserver
             .assertComplete()
-            .assertNoErrors()
-            .assertValueCount(1)
             .assertValue(domainUsers)
 
         testObserver.dispose()

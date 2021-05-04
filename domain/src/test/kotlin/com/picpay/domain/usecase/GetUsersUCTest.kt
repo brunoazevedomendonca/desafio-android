@@ -14,6 +14,9 @@ class GetUsersUCTest {
     private val repository = mock<UserDataRepository>()
     private val testScheduler = Schedulers.trampoline()
 
+    private val users = listOf(User(1, "username", "name", "imageUrl"))
+    private val error = RuntimeException("test")
+
     // System under test
     private lateinit var getUsersUC: GetUsersUC
 
@@ -25,14 +28,8 @@ class GetUsersUCTest {
     @Test
     fun getObservable_repositoryReturnListOfUsers_returnListOfUsers() {
         //Given repository.getUsers() returns a list of users
-        val userList =
-            listOf(
-                User(1, "@a", "A", "aUrl"),
-                User(2, "@b", "B", "bUrl")
-            )
-
         Mockito.`when`(repository.getUsers())
-            .thenReturn(Observable.just(userList))
+            .thenReturn(Observable.just(users))
 
         //When getObservable is called
         val testObserver = getUsersUC.getObservable(Unit).test()
@@ -40,9 +37,7 @@ class GetUsersUCTest {
         //Then return the list of users without error
         testObserver
             .assertComplete()
-            .assertNoErrors()
-            .assertValueCount(1)
-            .assertValue(userList)
+            .assertValue(users)
 
         testObserver.dispose()
     }
@@ -50,8 +45,6 @@ class GetUsersUCTest {
     @Test
     fun getObservable_repositoryReturnError_returnError() {
         //Given repository.getUsers() returns an error
-        val error = Exception()
-
         Mockito.`when`(repository.getUsers())
             .thenReturn(Observable.error(error))
 
@@ -59,10 +52,7 @@ class GetUsersUCTest {
         val testObserver = getUsersUC.getObservable(Unit).test()
 
         //Then returns the error
-        testObserver
-            .assertError(error)
-            .assertNoValues()
-            .assertNotComplete()
+        testObserver.assertError(error)
 
         testObserver.dispose()
     }

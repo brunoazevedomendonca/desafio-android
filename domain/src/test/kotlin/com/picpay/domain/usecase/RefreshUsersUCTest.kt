@@ -13,6 +13,8 @@ class RefreshUsersUCTest {
     private val repository = mock<UserDataRepository>()
     private val testScheduler = Schedulers.trampoline()
 
+    private val error = RuntimeException("test")
+
     // System under test
     private lateinit var refreshUsersUC: RefreshUsersUC
 
@@ -31,10 +33,7 @@ class RefreshUsersUCTest {
         val testObserver = refreshUsersUC.getCompletable(Unit).test()
 
         //Then completes without error
-        testObserver
-            .assertComplete()
-            .assertNoErrors()
-            .assertNoValues()
+        testObserver.assertComplete()
 
         testObserver.dispose()
     }
@@ -42,8 +41,6 @@ class RefreshUsersUCTest {
     @Test
     fun getCompletable_repositoryReturnError_returnError() {
         //Given repository.refreshUsers() returns an error
-        val error = Exception()
-
         Mockito.`when`(repository.refreshUsers())
             .thenReturn(Completable.error(error))
 
@@ -51,10 +48,7 @@ class RefreshUsersUCTest {
         val testObserver = refreshUsersUC.getCompletable(Unit).test()
 
         //Then returns the error
-        testObserver
-            .assertError(error)
-            .assertNoValues()
-            .assertNotComplete()
+        testObserver.assertError(error)
 
         testObserver.dispose()
     }
