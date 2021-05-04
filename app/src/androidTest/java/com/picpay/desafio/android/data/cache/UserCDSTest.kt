@@ -48,9 +48,9 @@ class UserCDSTest {
 
     @Test
     fun upsertUserList_newUserCMList_cacheDataReplace() {
-        //Given a initial userCM list inserted in cache
-        val initialData = listOf(userCM1, userCM2)
-        userDao.insertAll(initialData)
+        //Given a previous userCM list inserted in cache
+        val previousUserCmList = listOf(userCM1, userCM2)
+        userDao.insertAll(previousUserCmList)
 
         //When upsertUserList is called with a new userCM list
         val newUserCMList = listOf(userCM2, userCM3)
@@ -65,22 +65,22 @@ class UserCDSTest {
 
     @Test
     fun getUserList_withCacheData_returnCacheData() {
-        //Given a initial userCM list inserted in cache
-        val initialData = listOf(userCM1, userCM2)
-        userDao.insertAll(initialData).blockingAwait()
+        //Given previous cache data
+        val userCMList = listOf(userCM1, userCM2)
+        userDao.insertAll(userCMList).blockingAwait()
 
         //When getUserList is called
         val testObserver = userDao.getAll().test()
 
         //Then the userCM list is returned
-        testObserver.assertValue(initialData)
+        testObserver.assertValue(userCMList)
 
         testObserver.dispose()
     }
 
     @Test
     fun getUserList_withoutCacheData_returnEmtpyList() {
-        //Given that no data is already inserted in cache
+        //Given no data in cache
 
         //When getUserList is called
         val testObserver = userDao.getAll().test()

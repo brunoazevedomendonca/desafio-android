@@ -34,10 +34,8 @@ class GetUsersUCTest {
         //When getObservable is called
         val testObserver = getUsersUC.getObservable(Unit).test()
 
-        //Then return the list of users without error
-        testObserver
-            .assertComplete()
-            .assertValue(users)
+        //Then return the list of users
+        testObserver.assertValue(users)
 
         testObserver.dispose()
     }
