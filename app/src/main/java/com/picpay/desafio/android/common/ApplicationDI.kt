@@ -13,8 +13,8 @@ import com.picpay.desafio.android.data.remote.UserRDS
 import com.picpay.desafio.android.data.repository.UserRepository
 import com.picpay.desafio.android.presentation.scenes.userlist.UserListViewModel
 import com.picpay.domain.datarepository.UserDataRepository
-import com.picpay.domain.di.MainScheduler
 import com.picpay.domain.di.IOScheduler
+import com.picpay.domain.di.MainScheduler
 import com.picpay.domain.usecase.GetUsersUC
 import com.picpay.domain.usecase.RefreshUsersUC
 import io.reactivex.Scheduler
@@ -39,12 +39,16 @@ val remoteModule = module {
 
     single<RxJava2CallAdapterFactory> { RxJava2CallAdapterFactory.create() }
 
-    single<Retrofit>() {
+    single<Retrofit.Builder> {
         Retrofit.Builder()
-            .baseUrl("http://careers.picpay.com/tests/mobdev/")
             .client(get<OkHttpClient>())
             .addConverterFactory(get<GsonConverterFactory>())
             .addCallAdapterFactory(get<RxJava2CallAdapterFactory>())
+    }
+
+    single<Retrofit> {
+        get<Retrofit.Builder>()
+            .baseUrl("http://careers.picpay.com/tests/mobdev/")
             .build()
     }
 
