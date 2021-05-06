@@ -2,6 +2,7 @@ package com.picpay.desafio.android.data.repository
 
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import com.picpay.desafio.android.data.cache.UserCDS
 import com.picpay.desafio.android.data.cache.model.UserCM
 import com.picpay.desafio.android.data.remote.UserRDS
@@ -14,7 +15,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
 
 class UserRepositoryTest {
 
@@ -42,96 +42,114 @@ class UserRepositoryTest {
     }
 
     @Test
-    fun refreshUser_userRDSReturnUserRMList_userCDSReceiveUserCMList() {
+    fun getUsers_forceToRefreshAndRemoteSuccess_userCDSReceiveListAndReturnFromCache() {
         //Given userRDS.getUsers() returns a list of userRM
-        Mockito.`when`(userRDS.getUsers())
+        whenever(userRDS.getUsers())
             .thenReturn(Single.just(remoteUsers))
 
         val userCMCaptor = argumentCaptor<List<UserCM>>()
-        Mockito.`when`(userCDS.upsertUserList(userCMCaptor.capture()))
+        whenever(userCDS.upsertUserList(userCMCaptor.capture()))
             .thenReturn(Completable.complete())
 
-        //When refreshUser is called
-        val testObserver = userRepository.refreshUsers().test()
+        whenever(userCDS.getUserList())
+            .thenReturn(Observable.just(cacheUsers))
 
-        //Then the mapped data is passed to userCDS.upsertUserList() and completes without error
+        //When getUsers is called with forceToRefresh = true
+        val testObserver = userRepository.getUsers(true).test()
+
+        //Then the mapped data is passed to userCDS.upsertUserList() and returns cache data in domain model
         assertEquals(userCMCaptor.firstValue, cacheUsers)
 
-        testObserver.assertComplete()
+        testObserver.assertValue(domainUsers)
 
         testObserver.dispose()
     }
 
     @Test
-    fun refreshUser_userRDSReturnError_userCDSReceiveNothingAndReturnError() {
-        //Given userRDS returns an error
-        Mockito.`when`(userRDS.getUsers())
+    fun getUsers_forceToRefreshAndRemoteError_userCDSReceiveNothingAndReturnFromCache() {
+        //Given userRDS.getUsers() returns an error
+        whenever(userRDS.getUsers())
             .thenReturn(Single.error(error))
 
         val userCMCaptor = argumentCaptor<List<UserCM>>()
-        Mockito.`when`(userCDS.upsertUserList(userCMCaptor.capture()))
+        whenever(userCDS.upsertUserList(userCMCaptor.capture()))
             .thenReturn(Completable.complete())
 
-        //When refreshUser is called
-        val testObserver = userRepository.refreshUsers().test()
+        whenever(userCDS.getUserList())
+            .thenReturn(Observable.just(cacheUsers))
+
+        //When getUsers is called with forceToRefresh = true
+        val testObserver = userRepository.getUsers(true).test()
+
+        //Then nothing is passed to userCDS.upsertUserList() and returns cache data in domain model
+        assertTrue(userCMCaptor.allValues.isEmpty())
+
+        testObserver.assertValue(domainUsers)
+
+        testObserver.dispose()
+    }
+
+    @Test
+    fun getUsers_forceToRefreshAndCacheError_userCDSReceiveListAndReturnError() {
+        //Given userRDS.getUsers() returns a list of userRM
+        whenever(userRDS.getUsers())
+            .thenReturn(Single.just(remoteUsers))
+
+        val userCMCaptor = argumentCaptor<List<UserCM>>()
+        whenever(userCDS.upsertUserList(userCMCaptor.capture()))
+            .thenReturn(Completable.complete())
+
+        whenever(userCDS.getUserList())
+            .thenReturn(Observable.error(error))
+
+        //When getUsers is called with forceToRefresh = true
+        val testObserver = userRepository.getUsers(true).test()
+
+        //Then the mapped data is passed to userCDS.upsertUserList() and returns the error
+        assertEquals(userCMCaptor.firstValue, cacheUsers)
+
+        testObserver.assertError(error)
+
+        testObserver.dispose()
+    }
+
+    @Test
+    fun getUsers_fromCacheWithSuccess_userCDSReceiveNothingAndReturnFromCache() {
+        //Given a previous cached data
+        whenever(userCDS.getUserList())
+            .thenReturn(Observable.just(cacheUsers))
+
+        val userCMCaptor = argumentCaptor<List<UserCM>>()
+        whenever(userCDS.upsertUserList(userCMCaptor.capture()))
+            .thenReturn(Completable.complete())
+
+        //When getUsers is called with forceToRefresh = false
+        val testObserver = userRepository.getUsers(false).test()
+
+        //Then nothing is passed to userCDS.upsertUserList() and returns cache data in domain model
+        assertTrue(userCMCaptor.allValues.isEmpty())
+
+        testObserver.assertValue(domainUsers)
+
+        testObserver.dispose()
+    }
+
+    @Test
+    fun getUsers_fromCacheWithError_userCDSReceiveNothingAndReturnError() {
+        //Given an error in userCDS.getUserList()
+        whenever(userCDS.getUserList())
+            .thenReturn(Observable.error(error))
+
+        val userCMCaptor = argumentCaptor<List<UserCM>>()
+        whenever(userCDS.upsertUserList(userCMCaptor.capture()))
+            .thenReturn(Completable.complete())
+
+        //When getUsers is called with forceToRefresh = false
+        val testObserver = userRepository.getUsers(false).test()
 
         //Then nothing is passed to userCDS.upsertUserList() and returns the error
         assertTrue(userCMCaptor.allValues.isEmpty())
 
-        testObserver.assertError(error)
-
-        testObserver.dispose()
-    }
-
-    @Test
-    fun refreshUser_userCDSReturnError_returnError() {
-        //Given userRDS.getUsers() returns a list of userRM and userCDS.upsertUserList return an error
-        Mockito.`when`(userRDS.getUsers())
-            .thenReturn(Single.just(remoteUsers))
-
-        val userCMCaptor = argumentCaptor<List<UserCM>>()
-        Mockito.`when`(userCDS.upsertUserList(userCMCaptor.capture()))
-            .thenReturn(Completable.error(error))
-
-        //When refreshUser is called
-        val testObserver = userRepository.refreshUsers().test()
-
-        //Then mapped data is passed to userCDS.upsertUserList() and returns the error
-        assertEquals(userCMCaptor.firstValue, cacheUsers)
-
-        testObserver.assertError(error)
-
-        testObserver.dispose()
-    }
-
-    @Test
-    fun getUsers_userCDSReturnListOfUserCM_returnListOfUser() {
-        //Given userCDS.getUsers() return a list os userCM
-
-        Mockito.`when`(userCDS.getUserList())
-            .thenReturn(Observable.just(cacheUsers))
-
-        //When getUsers is called
-        val testObserver = userRepository.getUsers().test()
-
-        //Then return a list of User
-        testObserver
-            .assertComplete()
-            .assertValue(domainUsers)
-
-        testObserver.dispose()
-    }
-
-    @Test
-    fun getUsers_userCDSReturnError_returnError() {
-        //Given userCDS.getUsers() return an error
-        Mockito.`when`(userCDS.getUserList())
-            .thenReturn(Observable.error(error))
-
-        //When getUsers is called
-        val testObserver = userRepository.getUsers().test()
-
-        //Then returns the error
         testObserver.assertError(error)
 
         testObserver.dispose()

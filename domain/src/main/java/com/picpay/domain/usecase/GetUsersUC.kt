@@ -9,8 +9,10 @@ class GetUsersUC(
     executorScheduler: Scheduler,
     postExecutionScheduler: Scheduler,
     private val userDataRepository: UserDataRepository
-) : ObservableUseCase<List<User>, Unit>(executorScheduler, postExecutionScheduler) {
+) : ObservableUseCase<List<User>, GetUsersUC.GetUserParams>(executorScheduler, postExecutionScheduler) {
 
-    override fun getRawObservable(params: Unit): Observable<List<User>> =
-        userDataRepository.getUsers()
+    override fun getRawObservable(params: GetUserParams): Observable<List<User>> =
+        userDataRepository.getUsers(params.forceToRefresh)
+
+    data class GetUserParams(val forceToRefresh: Boolean)
 }

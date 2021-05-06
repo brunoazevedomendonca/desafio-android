@@ -14,12 +14,17 @@ class UserRepository(
     private val userCDS: UserCDS
 ) : UserDataRepository {
 
-    override fun refreshUsers(): Completable =
-        userRDS.getUsers()
-            .map { it.map { it.toCacheModel() } }
-            .flatMapCompletable { userCDS.upsertUserList(it) }
-
-    override fun getUsers(): Observable<List<User>> =
-        userCDS.getUserList()
+    override fun getUsers(forceToRefresh: Boolean): Observable<List<User>> =
+        refreshUsersIfRequested(forceToRefresh)
+            .andThen(userCDS.getUserList())
             .map { it.map { it.toDomainModel() } }
+
+    private fun refreshUsersIfRequested(forceToRefresh: Boolean): Completable =
+        if (forceToRefresh) {
+            userRDS.getUsers()
+                .map { it.map { it.toCacheModel() } }
+                .flatMapCompletable { userCDS.upsertUserList(it) }
+                .onErrorComplete()
+        } else Completable.complete()
+
 }

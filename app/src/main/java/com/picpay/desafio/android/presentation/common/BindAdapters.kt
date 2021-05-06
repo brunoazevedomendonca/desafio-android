@@ -9,17 +9,17 @@ import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 
 @BindingAdapter("app:showIfLoadingState")
-fun showIfLoadingState(view: View, screenState: ScreenState) {
+fun showIfLoadingState(view: View, screenState: ScreenState?) {
     view.visibility = if (screenState == ScreenState.LOADING) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("app:showIfSuccessState")
-fun showIfSuccessState(view: View, screenState: ScreenState) {
+fun showIfSuccessState(view: View, screenState: ScreenState?) {
     view.visibility = if (screenState == ScreenState.SUCCESS) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("app:showIfErrorState")
-fun showIfErrorState(view: View, screenState: ScreenState) {
+fun showIfErrorState(view: View, screenState: ScreenState?) {
     view.visibility = if (screenState == ScreenState.ERROR) View.VISIBLE else View.GONE
 }
 

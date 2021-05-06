@@ -21,8 +21,7 @@
             android:layout_height="match_parent"
             app:layout_constraintTop_toTopOf="parent"
             app:onRefreshListener="@{() -> viewModel.onRefresh()}"
-            app:refreshing="@{viewModel.isRefreshing()}"
-            app:showIfSuccessState="@{viewModel.screenState}">
+            app:refreshing="@{viewModel.isRefreshing()}">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"

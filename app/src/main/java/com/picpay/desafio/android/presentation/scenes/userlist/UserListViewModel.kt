@@ -8,13 +8,11 @@ import com.picpay.desafio.android.presentation.common.Event
 import com.picpay.desafio.android.presentation.common.ScreenState
 import com.picpay.domain.model.User
 import com.picpay.domain.usecase.GetUsersUC
-import com.picpay.domain.usecase.RefreshUsersUC
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 
 class UserListViewModel(
     private val getUsersUC: GetUsersUC,
-    private val refreshUsersUC: RefreshUsersUC,
     private val compositeDisposable: CompositeDisposable
 ) : ViewModel() {
 
@@ -35,37 +33,28 @@ class UserListViewModel(
         get() = _message
 
     init {
-        refreshUsers()
-        getUsers()
+        getUsers(true)
     }
 
-    private fun getUsers() {
-        getUsersUC.getObservable(Unit)
+    private fun getUsers(forceToRefresh: Boolean) {
+        getUsersUC.getObservable(GetUsersUC.GetUserParams(forceToRefresh))
             .doOnSubscribe { _screenState.value = ScreenState.LOADING }
+            .doOnSubscribe { _isRefreshing.value = false }
             .doOnError { _screenState.value = ScreenState.ERROR }
             .doOnNext { _screenState.value = ScreenState.SUCCESS }
             .subscribe(
                 { _users.value = it },
-                { _message.value = Event(R.string.generic_error) }
+                { _message.value = Event(R.string.refresh_error) }
             )
             .addTo(compositeDisposable)
     }
 
-    private fun refreshUsers() {
-        refreshUsersUC.getCompletable(Unit)
-            .doOnError { _message.value = Event(R.string.refresh_error) }
-            .doOnComplete { _isRefreshing.value = false }
-            .onErrorComplete()
-            .subscribe()
-            .addTo(compositeDisposable)
-    }
-
     fun onRefresh() {
-        refreshUsers()
+        getUsers(true)
     }
 
     fun onTryAgain() {
-        getUsers()
+        getUsers(false)
     }
 
     override fun onCleared() {

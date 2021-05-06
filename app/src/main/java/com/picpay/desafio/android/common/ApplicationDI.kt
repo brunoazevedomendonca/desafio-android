@@ -16,7 +16,6 @@ import com.picpay.domain.datarepository.UserDataRepository
 import com.picpay.domain.di.IOScheduler
 import com.picpay.domain.di.MainScheduler
 import com.picpay.domain.usecase.GetUsersUC
-import com.picpay.domain.usecase.RefreshUsersUC
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -93,7 +92,6 @@ val viewModelModule = module {
     viewModel {
         UserListViewModel(
             get<GetUsersUC>(),
-            get<RefreshUsersUC>(),
             get<CompositeDisposable>()
         )
     }
@@ -109,14 +107,6 @@ val navigationModule = module {
 }
 
 val useCaseModule = module {
-
-    factory<RefreshUsersUC> {
-        RefreshUsersUC(
-            get<Scheduler>(qualifier = IOScheduler),
-            get<Scheduler>(qualifier = MainScheduler),
-            get<UserDataRepository>()
-        )
-    }
 
     factory<GetUsersUC> {
         GetUsersUC(
