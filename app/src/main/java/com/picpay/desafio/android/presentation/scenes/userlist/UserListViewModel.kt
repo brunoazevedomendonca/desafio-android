@@ -37,6 +37,8 @@ class UserListViewModel(
     }
 
     private fun getUsers(forceToRefresh: Boolean) {
+        compositeDisposable.clear()
+
         getUsersUC.getObservable(GetUsersUC.GetUserParams(forceToRefresh))
             .doOnSubscribe { _screenState.value = ScreenState.LOADING }
             .doOnSubscribe { _isRefreshing.value = false }

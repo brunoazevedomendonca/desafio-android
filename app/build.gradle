@@ -96,6 +96,7 @@ dependencies {
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
     testImplementation "androidx.arch.core:core-testing:$core_testing_version"
     testImplementation "org.koin:koin-test:$koin_version"
+    testImplementation "com.google.truth:truth:1.1.2"
 
     androidTestImplementation "org.koin:koin-test:$koin_version"
     androidTestImplementation "androidx.arch.core:core-testing:$core_testing_version"

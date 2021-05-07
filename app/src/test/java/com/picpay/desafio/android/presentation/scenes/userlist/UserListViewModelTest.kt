@@ -1,22 +1,20 @@
 package com.picpay.desafio.android.presentation.scenes.userlist
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import com.picpay.desafio.android.common.RxImmediateSchedulerRule
+import com.picpay.desafio.android.presentation.common.LiveDataTestObserver
 import com.picpay.desafio.android.presentation.common.ScreenState
-import com.picpay.desafio.android.presentation.common.getOrAwaitValue
-import com.picpay.desafio.android.presentation.common.observeForTesting
 import com.picpay.domain.model.User
 import com.picpay.domain.usecase.GetUsersUC
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.TestScheduler
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import io.reactivex.subjects.PublishSubject
 import org.junit.Rule
 import org.junit.Test
-import java.util.concurrent.TimeUnit
 
 class UserListViewModelTest {
 
@@ -33,71 +31,154 @@ class UserListViewModelTest {
     @JvmField
     val instantExecutorRule = InstantTaskExecutorRule()
 
+    @Rule
+    @JvmField
+    var testSchedulerRule = RxImmediateSchedulerRule()
+
     @Test
     fun initViewModel_getUsersUCSuccess_updateLiveData() {
-        //Given GetUsersUC return with success
-        val testScheduler = TestScheduler()
+        //Given GetUsersUC
+        val subject = PublishSubject.create<List<User>>()
         whenever(getUsersUC.getObservable(any()))
-            .thenReturn(Observable.just(userList).subscribeOn(testScheduler))
+            .thenReturn(subject)
 
-        //When viewModel is initialized
+        //When viewModel is initialized and GetUserUC return with success
         userListViewModel = UserListViewModel(getUsersUC, compositeDisposable)
 
-        val states = mutableListOf<ScreenState>()
-        userListViewModel.screenState.observeForTesting {
-            states.add(it)
-            testScheduler.triggerActions()
-        }
-        val isRefreshing = userListViewModel.isRefreshing.getOrAwaitValue()
-        val users = userListViewModel.users.getOrAwaitValue()
-        val message = userListViewModel.message.getOrAwaitValue(500, TimeUnit.MILLISECONDS, false)
+        val stateObserver = LiveDataTestObserver(userListViewModel.screenState)
+        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing)
+        val usersObserver = LiveDataTestObserver(userListViewModel.users)
+        val messageObserver = LiveDataTestObserver(userListViewModel.message)
+
+        subject.onNext(userList)
 
         //Then loading and success are published in screenState
         // isRefreshing is set to false
         // users is updated
         // message is not updated
-        assertEquals(2, states.size)
-        assertEquals(ScreenState.LOADING, states[0])
-        assertEquals(ScreenState.SUCCESS, states[1])
-        assertEquals(false, isRefreshing)
-        assertEquals(userList, users)
-        assertEquals(null, message)
+        assertThat(stateObserver.getObservedValues())
+            .containsExactly(ScreenState.LOADING, ScreenState.SUCCESS)
+            .inOrder()
+
+        assertThat(isRefreshingObserver.getObservedValues())
+            .containsExactly(false)
+
+        assertThat(usersObserver.getObservedValues())
+            .containsExactly(userList)
+
+        assertThat(messageObserver.getObservedValues())
+            .isEmpty()
     }
 
     @Test
     fun initViewModel_getUsersUCError_updateLiveData() {
-        //Given GetUsersUC return error
-        val testScheduler = TestScheduler()
+        //Given GetUsersUC
+        val subject = PublishSubject.create<List<User>>()
         whenever(getUsersUC.getObservable(any()))
-            .thenReturn(Observable.error<List<User>>(error).subscribeOn(testScheduler))
+            .thenReturn(subject)
 
-        //When viewModel is initialized
+        //When viewModel is initialized and GetUserUC return with success
         userListViewModel = UserListViewModel(getUsersUC, compositeDisposable)
 
-        val states = mutableListOf<ScreenState>()
-        userListViewModel.screenState.observeForTesting {
-            states.add(it)
-            testScheduler.triggerActions()
-        }
-        val isRefreshing = userListViewModel.isRefreshing.getOrAwaitValue()
-        val message = userListViewModel.message.getOrAwaitValue()
-        val users = userListViewModel.users.getOrAwaitValue(500, TimeUnit.MILLISECONDS, false)
+        val stateObserver = LiveDataTestObserver(userListViewModel.screenState)
+        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing)
+        val usersObserver = LiveDataTestObserver(userListViewModel.users)
+        val messageObserver = LiveDataTestObserver(userListViewModel.message)
+
+        subject.onError(error)
 
         //Then loading and error are published in screenState
         // isRefreshing is set to false
-        // message is updated
         // users is not updated
-        assertEquals(2, states.size)
-        assertEquals(ScreenState.LOADING, states[0])
-        assertEquals(ScreenState.ERROR, states[1])
-        assertEquals(false, isRefreshing)
-        assertTrue(message != null)
-        assertEquals(null, users)
+        // message is updated
+        assertThat(stateObserver.getObservedValues())
+            .containsExactly(ScreenState.LOADING, ScreenState.ERROR)
+            .inOrder()
+
+        assertThat(isRefreshingObserver.getObservedValues())
+            .containsExactly(false)
+
+        assertThat(usersObserver.getObservedValues())
+            .isEmpty()
+
+        assertThat(messageObserver.getObservedValues())
+            .hasSize(1)
     }
 
-    //TODO validar quantidade de vezes que livedatas são notificados
+    @Test
+    fun onRefresh_getUsersUCSuccess_updateLiveData() {
+        //Given the UserListViewModel previously initialized with data
+        val subject = PublishSubject.create<List<User>>()
+        whenever(getUsersUC.getObservable(any()))
+            .thenReturn(subject)
 
-    //TODO validar métodos onRefresh e onTryAgain e onCleared
+        userListViewModel = UserListViewModel(getUsersUC, compositeDisposable)
 
+        val stateObserver = LiveDataTestObserver(userListViewModel.screenState)
+        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing)
+        val usersObserver = LiveDataTestObserver(userListViewModel.users)
+        val messageObserver = LiveDataTestObserver(userListViewModel.message)
 
+        subject.onNext(userList)
+
+        //When onRefresh is called
+        userListViewModel.onRefresh()
+        subject.onNext(userList)
+
+        //Then loading and success are published twice in screenState
+        // isRefreshing is set to false twice
+        // users is updated twice
+        // message is not updated
+        assertThat(stateObserver.getObservedValues())
+            .containsExactly(ScreenState.LOADING, ScreenState.SUCCESS, ScreenState.LOADING, ScreenState.SUCCESS)
+            .inOrder()
+
+        assertThat(isRefreshingObserver.getObservedValues())
+            .containsExactly(false, false)
+
+        assertThat(usersObserver.getObservedValues())
+            .containsExactly(userList, userList)
+
+        assertThat(messageObserver.getObservedValues())
+            .isEmpty()
+    }
+
+    @Test
+    fun onTryAgain_getUsersUCSuccess_updateLiveData() {
+        //Given the UserListViewModel previously initialized with error
+        val subject = PublishSubject.create<List<User>>()
+        whenever(getUsersUC.getObservable(any()))
+            .thenReturn(subject)
+
+        userListViewModel = UserListViewModel(getUsersUC, compositeDisposable)
+
+        val stateObserver = LiveDataTestObserver(userListViewModel.screenState)
+        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing)
+        val usersObserver = LiveDataTestObserver(userListViewModel.users)
+        val messageObserver = LiveDataTestObserver(userListViewModel.message)
+
+        subject.onError(error)
+
+        //When onTryAgain is called and return with success
+        whenever(getUsersUC.getObservable(any()))
+            .thenReturn(Observable.just(userList))
+        userListViewModel.onTryAgain()
+
+        //Then loading, error, loading and success are published in screenState
+        // isRefreshing is set to false twice
+        // message is updated
+        // users is updated
+        assertThat(stateObserver.getObservedValues())
+            .containsExactly(ScreenState.LOADING, ScreenState.ERROR, ScreenState.LOADING, ScreenState.SUCCESS)
+            .inOrder()
+
+        assertThat(isRefreshingObserver.getObservedValues())
+            .containsExactly(false, false)
+
+        assertThat(messageObserver.getObservedValues())
+            .hasSize(1)
+
+        assertThat(usersObserver.getObservedValues())
+            .containsExactly(userList)
+    }
 }
