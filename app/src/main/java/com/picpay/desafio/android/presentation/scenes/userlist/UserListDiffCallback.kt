@@ -17,10 +17,12 @@ class UserListDiffCallback(
     }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition].id == newList[newItemPosition].id
+        return if (oldList.size <= oldItemPosition || oldList.size <= newItemPosition) false
+        else oldList[oldItemPosition].id == newList[newItemPosition].id
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition] == newList[newItemPosition]
+        return if (oldList.size <= oldItemPosition || oldList.size <= newItemPosition) false
+        else oldList[oldItemPosition] == newList[newItemPosition]
     }
 }
