@@ -1,5 +1,6 @@
 package com.picpay.domain.usecase
 
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.picpay.domain.datarepository.UserDataRepository
@@ -29,12 +30,12 @@ class GetUsersUCTest {
     @Test
     fun getObservable_repositoryReturnListOfUsers_returnListOfUsers() {
         //Given repository.getUsers() returns a list of users
-        whenever(repository.getUsers(true))
+        whenever(repository.getUsers(any()))
             .thenReturn(Observable.just(users))
 
         //When getObservable is called
         val testObserver = getUsersUC
-            .getObservable(GetUsersUC.GetUserParams(true))
+            .getObservable(GetUsersUC.GetUserParams(any()))
             .test()
 
         //Then return the list of users
@@ -46,12 +47,12 @@ class GetUsersUCTest {
     @Test
     fun getObservable_repositoryReturnError_returnError() {
         //Given repository.getUsers() returns an error
-        whenever(repository.getUsers(true))
+        whenever(repository.getUsers(any()))
             .thenReturn(Observable.error(error))
 
         //When getObservable is called
         val testObserver = getUsersUC
-            .getObservable(GetUsersUC.GetUserParams(true))
+            .getObservable(GetUsersUC.GetUserParams(any()))
             .test()
 
         //Then returns the error
