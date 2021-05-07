@@ -1,8 +1,8 @@
 package com.picpay.desafio.android.data.mappers
 
+import com.google.common.truth.Truth.assertThat
 import com.picpay.desafio.android.data.cache.model.UserCM
 import org.junit.Test
-import org.junit.Assert.*
 
 class CacheToDomainMappersTest {
 
@@ -15,9 +15,9 @@ class CacheToDomainMappersTest {
         val result = userCM.toDomainModel()
 
         //Then return a User
-        assertEquals(result.id, userCM.uid)
-        assertEquals(result.username, userCM.username)
-        assertEquals(result.name, userCM.name)
-        assertEquals(result.imageUrl, userCM.imageUrl)
+        assertThat(result.id).isEqualTo(userCM.uid)
+        assertThat(result.username).isEqualTo(userCM.username)
+        assertThat(result.name).isEqualTo(userCM.name)
+        assertThat(result.imageUrl).isEqualTo(userCM.imageUrl)
     }
 }

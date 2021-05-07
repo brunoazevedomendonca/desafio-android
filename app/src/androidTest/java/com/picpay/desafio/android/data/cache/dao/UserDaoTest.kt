@@ -6,6 +6,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.picpay.desafio.android.data.cache.infrastructure.AppDatabase
 import com.picpay.desafio.android.data.cache.model.UserCM
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -18,6 +20,7 @@ class UserDaoTest {
     private val userCMList = listOf(UserCM(1, "username", "name", "imageUrl"))
 
     private lateinit var appDatabase: AppDatabase
+    private val testDisposables = CompositeDisposable()
 
     //System under test
     private lateinit var userDao: UserDao
@@ -34,6 +37,7 @@ class UserDaoTest {
 
     @After
     fun tearDown() {
+        testDisposables.clear()
         appDatabase.close()
     }
 
@@ -41,12 +45,12 @@ class UserDaoTest {
     fun getAll_withoutCacheData_returnEmptyList() {
         //Given no data in cache
         //When getAll is called
-        val testObserver = userDao.getAll().test()
-
-        //Then an empty list is returned
-        testObserver.assertValue(emptyList())
-
-        testObserver.dispose()
+        userDao
+            .getAll()
+            .test()
+            //Then an empty list is returned
+            .assertValue(emptyList())
+            .addTo(testDisposables)
     }
 
     @Test
@@ -55,12 +59,12 @@ class UserDaoTest {
         userDao.insertAll(userCMList).blockingAwait()
 
         //When getAll is called
-        val testObserver = userDao.getAll().test()
-
-        //Then the cache data is returned
-        testObserver.assertValue(userCMList)
-
-        testObserver.dispose()
+        userDao
+            .getAll()
+            .test()
+            //Then the cache data is returned
+            .assertValue(userCMList)
+            .addTo(testDisposables)
     }
 
     @Test
@@ -70,10 +74,11 @@ class UserDaoTest {
         userDao.insertAll(emptyList()).blockingAwait()
 
         //Then the emptyList is inserted
-        val testObserver = userDao.getAll().test()
-        testObserver.assertValue(emptyList())
-
-        testObserver.dispose()
+        userDao
+            .getAll()
+            .test()
+            .assertValue(emptyList())
+            .addTo(testDisposables)
     }
 
     @Test
@@ -83,10 +88,11 @@ class UserDaoTest {
         userDao.insertAll(userCMList).blockingAwait()
 
         //Then the userCMList is inserted
-        val testObserver = userDao.getAll().test()
-        testObserver.assertValue(userCMList)
-
-        testObserver.dispose()
+        userDao
+            .getAll()
+            .test()
+            .assertValue(userCMList)
+            .addTo(testDisposables)
     }
 
     @Test
@@ -98,10 +104,11 @@ class UserDaoTest {
         userDao.deleteAll().blockingAwait()
 
         //Then all cache data is deleted
-        val testObserver = userDao.getAll().test()
-        testObserver.assertValue(emptyList())
-
-        testObserver.dispose()
+        userDao
+            .getAll()
+            .test()
+            .assertValue(emptyList())
+            .addTo(testDisposables)
     }
 
 }

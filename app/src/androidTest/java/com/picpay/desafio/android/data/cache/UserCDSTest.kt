@@ -8,6 +8,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.picpay.desafio.android.data.cache.dao.UserDao
 import com.picpay.desafio.android.data.cache.infrastructure.AppDatabase
 import com.picpay.desafio.android.data.cache.model.UserCM
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -16,6 +18,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class UserCDSTest {
+
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
@@ -25,6 +28,7 @@ class UserCDSTest {
 
     private lateinit var appDatabase: AppDatabase
     private lateinit var userDao: UserDao
+    private val testDisposables = CompositeDisposable()
 
     // System under test
     private lateinit var userCDS: UserCDS
@@ -43,6 +47,7 @@ class UserCDSTest {
 
     @After
     fun tearDown() {
+        testDisposables.clear()
         appDatabase.close()
     }
 
@@ -57,10 +62,11 @@ class UserCDSTest {
         userCDS.upsertUserList(newUserCMList).blockingAwait()
 
         //Then cache data is replaced with new data
-        val testObserver = userDao.getAll().test()
-        testObserver.assertValue(newUserCMList)
-
-        testObserver.dispose()
+        userDao
+            .getAll()
+            .test()
+            .assertValue(newUserCMList)
+            .addTo(testDisposables)
     }
 
     @Test
@@ -70,12 +76,12 @@ class UserCDSTest {
         userDao.insertAll(userCMList).blockingAwait()
 
         //When getUserList is called
-        val testObserver = userDao.getAll().test()
-
-        //Then the userCM list is returned
-        testObserver.assertValue(userCMList)
-
-        testObserver.dispose()
+        userDao
+            .getAll()
+            .test()
+            //Then the userCM list is returned
+            .assertValue(userCMList)
+            .addTo(testDisposables)
     }
 
     @Test
@@ -83,11 +89,11 @@ class UserCDSTest {
         //Given no data in cache
 
         //When getUserList is called
-        val testObserver = userDao.getAll().test()
-
-        //Then an empty list is returned
-        testObserver.assertValue(emptyList())
-
-        testObserver.dispose()
+        userDao
+            .getAll()
+            .test()
+            //Then an empty list is returned
+            .assertValue(emptyList())
+            .addTo(testDisposables)
     }
 }

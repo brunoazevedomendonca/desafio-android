@@ -1,5 +1,6 @@
 package com.picpay.desafio.android.data.repository
 
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -11,8 +12,9 @@ import com.picpay.domain.model.User
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -32,6 +34,7 @@ class UserRepositoryTest {
     private val cacheUsers = listOf(UserCM(ID, USERNAME, NAME, IMAGE_URL))
     private val domainUsers = listOf(User(ID, USERNAME, NAME, IMAGE_URL))
     private val error = RuntimeException("test")
+    private val testDisposables = CompositeDisposable()
 
     // System under test
     private lateinit var userRepository: UserRepository
@@ -39,6 +42,11 @@ class UserRepositoryTest {
     @Before
     fun setUp() {
         userRepository = UserRepository(userRDS, userCDS)
+    }
+
+    @After
+    fun tearDown() {
+        testDisposables.clear()
     }
 
     @Test
@@ -55,14 +63,14 @@ class UserRepositoryTest {
             .thenReturn(Observable.just(cacheUsers))
 
         //When getUsers is called with forceToRefresh = true
-        val testObserver = userRepository.getUsers(true).test()
+        userRepository
+            .getUsers(true)
+            .test()
+            //Then the mapped data is passed to userCDS.upsertUserList() and returns cache data in domain model
+            .assertValue(domainUsers)
+            .addTo(testDisposables)
 
-        //Then the mapped data is passed to userCDS.upsertUserList() and returns cache data in domain model
-        assertEquals(userCMCaptor.firstValue, cacheUsers)
-
-        testObserver.assertValue(domainUsers)
-
-        testObserver.dispose()
+        assertThat(userCMCaptor.firstValue).isEqualTo(cacheUsers)
     }
 
     @Test
@@ -79,14 +87,14 @@ class UserRepositoryTest {
             .thenReturn(Observable.just(cacheUsers))
 
         //When getUsers is called with forceToRefresh = true
-        val testObserver = userRepository.getUsers(true).test()
+        userRepository
+            .getUsers(true)
+            .test()
+            //Then nothing is passed to userCDS.upsertUserList() and returns cache data in domain model
+            .assertValue(domainUsers)
+            .addTo(testDisposables)
 
-        //Then nothing is passed to userCDS.upsertUserList() and returns cache data in domain model
-        assertTrue(userCMCaptor.allValues.isEmpty())
-
-        testObserver.assertValue(domainUsers)
-
-        testObserver.dispose()
+        assertThat(userCMCaptor.allValues).isEmpty()
     }
 
     @Test
@@ -103,14 +111,14 @@ class UserRepositoryTest {
             .thenReturn(Observable.error(error))
 
         //When getUsers is called with forceToRefresh = true
-        val testObserver = userRepository.getUsers(true).test()
+        userRepository
+            .getUsers(true)
+            .test()
+            //Then the mapped data is passed to userCDS.upsertUserList() and returns the error
+            .assertError(error)
+            .addTo(testDisposables)
 
-        //Then the mapped data is passed to userCDS.upsertUserList() and returns the error
-        assertEquals(userCMCaptor.firstValue, cacheUsers)
-
-        testObserver.assertError(error)
-
-        testObserver.dispose()
+        assertThat(userCMCaptor.firstValue).isEqualTo(cacheUsers)
     }
 
     @Test
@@ -124,14 +132,14 @@ class UserRepositoryTest {
             .thenReturn(Completable.complete())
 
         //When getUsers is called with forceToRefresh = false
-        val testObserver = userRepository.getUsers(false).test()
+        userRepository
+            .getUsers(false)
+            .test()
+            //Then nothing is passed to userCDS.upsertUserList() and returns cache data in domain model
+            .assertValue(domainUsers)
+            .addTo(testDisposables)
 
-        //Then nothing is passed to userCDS.upsertUserList() and returns cache data in domain model
-        assertTrue(userCMCaptor.allValues.isEmpty())
-
-        testObserver.assertValue(domainUsers)
-
-        testObserver.dispose()
+        assertThat(userCMCaptor.allValues).isEmpty()
     }
 
     @Test
@@ -145,13 +153,13 @@ class UserRepositoryTest {
             .thenReturn(Completable.complete())
 
         //When getUsers is called with forceToRefresh = false
-        val testObserver = userRepository.getUsers(false).test()
+        userRepository
+            .getUsers(false)
+            .test()
+            //Then nothing is passed to userCDS.upsertUserList() and returns the error
+            .assertError(error)
+            .addTo(testDisposables)
 
-        //Then nothing is passed to userCDS.upsertUserList() and returns the error
-        assertTrue(userCMCaptor.allValues.isEmpty())
-
-        testObserver.assertError(error)
-
-        testObserver.dispose()
+        assertThat(userCMCaptor.allValues).isEmpty()
     }
 }

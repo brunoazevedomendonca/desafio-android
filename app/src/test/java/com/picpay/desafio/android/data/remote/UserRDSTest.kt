@@ -1,7 +1,10 @@
 package com.picpay.desafio.android.data.remote
 
+import com.google.common.truth.Truth.assertThat
 import com.picpay.desafio.android.common.remoteModule
 import com.picpay.desafio.android.data.remote.model.UserRM
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -16,15 +19,9 @@ import java.net.HttpURLConnection
 
 class UserRDSTest : KoinTest {
 
-    companion object {
-        private const val ID = 1
-        private const val USERNAME = "username"
-        private const val NAME = "name"
-        private const val IMAGE_URL = "imageUrl"
-    }
-
     private val retrofitBuilder: Retrofit.Builder by inject()
     private val mockWebServer = MockWebServer()
+    private val testDisposables = CompositeDisposable()
     private lateinit var userRDS: UserRDS
 
     @Before
@@ -41,30 +38,35 @@ class UserRDSTest : KoinTest {
     @After
     fun tearDown() {
         mockWebServer.shutdown()
+        testDisposables.clear()
         stopKoin()
     }
 
     @Test
     fun getUsers_withSuccessResponse_returnUserRMList() {
         //Given a success response
-        val successResponse =
-            "[{\"id\":$ID,\"name\":\"$NAME\",\"img\":\"$IMAGE_URL\",\"username\":\"$USERNAME\"}]"
-
         val mockResponse = MockResponse()
             .setResponseCode(HttpURLConnection.HTTP_OK)
-            .setBody(successResponse)
+            .setBody(RemoteTestUtils.getJsonFileString("users_mock.json"))
 
         mockWebServer.enqueue(mockResponse)
 
         //When getUser is called
-        val testObserver = userRDS.getUsers().test()
-
-        //Then return userRM list
-        testObserver
-            .assertValue(listOf(UserRM(ID, USERNAME, NAME, IMAGE_URL)))
+        userRDS
+            .getUsers()
+            .test()
+            //Then return userRM list
             .assertComplete()
-
-        testObserver.dispose()
+            .assertValue { it.size == 3 }
+            .assertValue {
+                it[0] == UserRM(
+                    1001,
+                    "@eduardo.santos",
+                    "Eduardo Santos",
+                    "https://randomuser.me/api/portraits/men/9.jpg"
+                )
+            }
+            .addTo(testDisposables)
     }
 
     @Test
@@ -79,12 +81,29 @@ class UserRDSTest : KoinTest {
         mockWebServer.enqueue(mockResponse)
 
         //When getUser is called
-        val testObserver = userRDS.getUsers().test()
-
-        //Then return empty list
-        testObserver
+        userRDS
+            .getUsers()
+            .test()
+            //Then return empty list
             .assertComplete()
             .assertValue(emptyList())
+            .addTo(testDisposables)
     }
 
+
+    @Test
+    fun getUsers_sentRequest_receivedExpected() {
+        //Given a success response
+        val mockResponse = MockResponse()
+            .setResponseCode(HttpURLConnection.HTTP_OK)
+
+        mockWebServer.enqueue(mockResponse)
+
+        //When getUser is called
+        userRDS.getUsers().test().addTo(testDisposables)
+
+        //Then the correct request path is sent to server
+        assertThat(mockWebServer.takeRequest().path)
+            .isEqualTo("/users")
+    }
 }

@@ -13,16 +13,16 @@ import com.picpay.domain.usecase.GetUsersUC
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 
 class UserListViewModelTest {
 
     private val getUsersUC = mock<GetUsersUC>()
-    private val compositeDisposable = CompositeDisposable()
-
     private val userList = listOf(User(1, "username", "name", "imageUrl"))
     private val error = RuntimeException("test")
+    private val testDisposables = CompositeDisposable()
 
     //System under test
     private lateinit var userListViewModel: UserListViewModel
@@ -35,6 +35,11 @@ class UserListViewModelTest {
     @JvmField
     var testSchedulerRule = RxImmediateSchedulerRule()
 
+    @After
+    fun tearDown() {
+        testDisposables.clear()
+    }
+
     @Test
     fun initViewModel_getUsersUCSuccess_updateLiveData() {
         //Given GetUsersUC
@@ -43,12 +48,12 @@ class UserListViewModelTest {
             .thenReturn(subject)
 
         //When viewModel is initialized and GetUserUC return with success
-        userListViewModel = UserListViewModel(getUsersUC, compositeDisposable)
+        userListViewModel = UserListViewModel(getUsersUC, CompositeDisposable())
 
-        val stateObserver = LiveDataTestObserver(userListViewModel.screenState)
-        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing)
-        val usersObserver = LiveDataTestObserver(userListViewModel.users)
-        val messageObserver = LiveDataTestObserver(userListViewModel.message)
+        val stateObserver = LiveDataTestObserver(userListViewModel.screenState).addTo(testDisposables)
+        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing).addTo(testDisposables)
+        val usersObserver = LiveDataTestObserver(userListViewModel.users).addTo(testDisposables)
+        val messageObserver = LiveDataTestObserver(userListViewModel.message).addTo(testDisposables)
 
         subject.onNext(userList)
 
@@ -78,12 +83,12 @@ class UserListViewModelTest {
             .thenReturn(subject)
 
         //When viewModel is initialized and GetUserUC return with success
-        userListViewModel = UserListViewModel(getUsersUC, compositeDisposable)
+        userListViewModel = UserListViewModel(getUsersUC, CompositeDisposable())
 
-        val stateObserver = LiveDataTestObserver(userListViewModel.screenState)
-        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing)
-        val usersObserver = LiveDataTestObserver(userListViewModel.users)
-        val messageObserver = LiveDataTestObserver(userListViewModel.message)
+        val stateObserver = LiveDataTestObserver(userListViewModel.screenState).addTo(testDisposables)
+        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing).addTo(testDisposables)
+        val usersObserver = LiveDataTestObserver(userListViewModel.users).addTo(testDisposables)
+        val messageObserver = LiveDataTestObserver(userListViewModel.message).addTo(testDisposables)
 
         subject.onError(error)
 
@@ -112,12 +117,12 @@ class UserListViewModelTest {
         whenever(getUsersUC.getObservable(any()))
             .thenReturn(subject)
 
-        userListViewModel = UserListViewModel(getUsersUC, compositeDisposable)
+        userListViewModel = UserListViewModel(getUsersUC, CompositeDisposable())
 
-        val stateObserver = LiveDataTestObserver(userListViewModel.screenState)
-        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing)
-        val usersObserver = LiveDataTestObserver(userListViewModel.users)
-        val messageObserver = LiveDataTestObserver(userListViewModel.message)
+        val stateObserver = LiveDataTestObserver(userListViewModel.screenState).addTo(testDisposables)
+        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing).addTo(testDisposables)
+        val usersObserver = LiveDataTestObserver(userListViewModel.users).addTo(testDisposables)
+        val messageObserver = LiveDataTestObserver(userListViewModel.message).addTo(testDisposables)
 
         subject.onNext(userList)
 
@@ -150,12 +155,12 @@ class UserListViewModelTest {
         whenever(getUsersUC.getObservable(any()))
             .thenReturn(subject)
 
-        userListViewModel = UserListViewModel(getUsersUC, compositeDisposable)
+        userListViewModel = UserListViewModel(getUsersUC, CompositeDisposable())
 
-        val stateObserver = LiveDataTestObserver(userListViewModel.screenState)
-        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing)
-        val usersObserver = LiveDataTestObserver(userListViewModel.users)
-        val messageObserver = LiveDataTestObserver(userListViewModel.message)
+        val stateObserver = LiveDataTestObserver(userListViewModel.screenState).addTo(testDisposables)
+        val isRefreshingObserver = LiveDataTestObserver(userListViewModel.isRefreshing).addTo(testDisposables)
+        val usersObserver = LiveDataTestObserver(userListViewModel.users).addTo(testDisposables)
+        val messageObserver = LiveDataTestObserver(userListViewModel.message).addTo(testDisposables)
 
         subject.onError(error)
 
