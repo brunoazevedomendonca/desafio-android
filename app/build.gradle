@@ -15,7 +15,7 @@ android {
 
         vectorDrawables.useSupportLibrary = true
 
-        testInstrumentationRunner "com.picpay.desafio.android.common.DesafioAndroidApplicationTest"
+        testInstrumentationRunner "com.picpay.desafio.android.common.ApplicationJUnitRunner"
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -44,6 +44,10 @@ android {
 
     buildFeatures {
         dataBinding true
+    }
+
+    testOptions {
+        animationsDisabled = true
     }
 }
 
@@ -102,8 +106,9 @@ dependencies {
     androidTestImplementation "androidx.test:core-ktx:$core_ktx_test_version"
     androidTestImplementation "androidx.test:runner:$test_runner_version"
     androidTestImplementation "androidx.test.ext:junit:$test_ext_version"
-    androidTestImplementation "androidx.fragment:fragment-testing:$fragment_testing_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+
+    debugImplementation "androidx.fragment:fragment-testing:$fragment_testing_version"
 
     implementation project(':domain')
 }

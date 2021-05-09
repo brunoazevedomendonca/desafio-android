@@ -40,7 +40,7 @@ class UserListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (requireActivity() as ScreenContainer).setToolbarTitle(R.string.user_list_screen_title)
+//        (requireActivity() as ScreenContainer).setToolbarTitle(R.string.user_list_screen_title)
 
         binding.lifecycleOwner = this
         binding.viewModel = userListViewModel

@@ -1,6 +1,10 @@
 package com.picpay.desafio.android.presentation.scenes.userlist
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.testing.launchFragment
 import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -8,8 +12,13 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import com.picpay.desafio.android.R
-import com.picpay.desafio.android.presentation.common.MainActivity
+import com.picpay.desafio.android.common.RxImmediateSchedulerRuleAndroid
+import com.picpay.domain.model.User
+import com.picpay.domain.usecase.GetUsersUC
+import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -25,14 +34,32 @@ import org.koin.test.KoinTest
 class UserListFragmentTest : KoinTest {
 
     @get:Rule
-    var activityRule: ActivityScenarioRule<MainActivity> =
-        ActivityScenarioRule(MainActivity::class.java)
+    var activityRule: ActivityScenarioRule<FragmentActivity> =
+        ActivityScenarioRule(FragmentActivity::class.java)
 
-    private val userListViewModel = mock<UserListViewModel>()
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule
+    var testSchedulerRule = RxImmediateSchedulerRuleAndroid()
+
+    private val getUsersUC = mock<GetUsersUC>()
+    private val compositeDisposable = CompositeDisposable()
+    private val userList = listOf(User(1, "username", "name", "imageUrl"))
+
+    private lateinit var userListViewModel: UserListViewModel
 
     @Before
     fun setUp() {
-        loadKoinModules(module { viewModel(override = true) { userListViewModel } })
+        whenever(getUsersUC.getObservable(GetUsersUC.GetUserParams(true)))
+            .thenReturn(Observable.just(userList))
+        userListViewModel = UserListViewModel(getUsersUC, compositeDisposable)
+
+        loadKoinModules(
+            module {
+                viewModel(override = true) { userListViewModel }
+            }
+        )
     }
 
     @After
