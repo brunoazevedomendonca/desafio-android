@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.picpay.desafio.android.R
 import com.picpay.desafio.android.databinding.FragmentUserListBinding
-import com.picpay.desafio.android.presentation.common.navigation.ScreenContainer
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class UserListFragment : Fragment() {
@@ -44,6 +43,8 @@ class UserListFragment : Fragment() {
 
         binding.lifecycleOwner = this
         binding.viewModel = userListViewModel
+
+        binding.toolbar.setTitle(R.string.user_list_screen_title)
 
         val adapter = UserListAdapter()
         binding.recyclerView.adapter = adapter

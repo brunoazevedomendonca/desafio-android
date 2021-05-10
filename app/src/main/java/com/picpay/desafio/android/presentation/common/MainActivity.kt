@@ -7,11 +7,9 @@ import com.github.terrakok.cicerone.Router
 import com.github.terrakok.cicerone.androidx.AppNavigator
 import com.picpay.desafio.android.R
 import com.picpay.desafio.android.databinding.ActivityMainBinding
-import com.picpay.desafio.android.presentation.common.navigation.ScreenContainer
-import com.picpay.desafio.android.presentation.common.navigation.userListScreen
 import org.koin.android.ext.android.inject
 
-class MainActivity : AppCompatActivity(R.layout.activity_main), ScreenContainer {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -21,11 +19,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ScreenContainer 
         AppNavigator(this, R.id.frmContainer, supportFragmentManager)
     }
 
-    override val initialScreen = userListScreen()
-
-    override fun setToolbarTitle(titleId: Int) {
-        binding.toolbar.setTitle(titleId)
-    }
+    private val initialScreen = userListScreen()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
