@@ -17,22 +17,24 @@
         android:background="@color/colorPrimaryDark">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            style="@style/ScreenToolBar"
+            android:id="@+id/toolbarUserList"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="72dp"
+            android:elevation="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="@string/user_list_screen_title"
+            app:titleTextColor="@android:color/white" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefresh"
+            android:id="@+id/swipeRefreshUsers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintTop_toBottomOf="@id/toolbarUserList"
             app:onRefreshListener="@{() -> viewModel.onRefresh()}"
             app:refreshing="@{viewModel.isRefreshing()}">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
+                android:id="@+id/recyclerViewUsers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:showIfSuccessState="@{viewModel.screenState}"
@@ -41,7 +43,7 @@
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <ProgressBar
-            android:id="@+id/progressBar"
+            android:id="@+id/progressIndicator"
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -49,10 +51,11 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintTop_toBottomOf="@id/toolbarUserList"
             app:showIfLoadingState="@{viewModel.screenState}" />
 
         <TextView
+            android:id="@+id/textViewError"
             style="@style/ScreenErrorTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -60,11 +63,11 @@
             android:gravity="center"
             android:text="@string/generic_error"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/tryAgain"
+            app:layout_constraintBottom_toTopOf="@id/btnTryAgain"
             app:showIfErrorState="@{viewModel.screenState}" />
 
         <Button
-            android:id="@+id/tryAgain"
+            android:id="@+id/btnTryAgain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
@@ -74,7 +77,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintTop_toBottomOf="@id/toolbarUserList"
             app:showIfErrorState="@{viewModel.screenState}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

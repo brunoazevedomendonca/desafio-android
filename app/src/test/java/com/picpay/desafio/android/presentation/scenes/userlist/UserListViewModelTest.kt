@@ -14,12 +14,20 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class UserListViewModelTest {
 
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule
+    var testSchedulerRule = RxImmediateSchedulerRule()
+
     private val getUsersUC = mock<GetUsersUC>()
+    private val subject = PublishSubject.create<List<User>>()
     private val userList = listOf(User(1, "username", "name", "imageUrl"))
     private val error = RuntimeException("test")
     private val testDisposables = CompositeDisposable()
@@ -27,13 +35,11 @@ class UserListViewModelTest {
     //System under test
     private lateinit var userListViewModel: UserListViewModel
 
-    @Rule
-    @JvmField
-    val instantExecutorRule = InstantTaskExecutorRule()
-
-    @Rule
-    @JvmField
-    var testSchedulerRule = RxImmediateSchedulerRule()
+    @Before
+    fun setUp() {
+        whenever(getUsersUC.getObservable(any()))
+            .thenReturn(subject)
+    }
 
     @After
     fun tearDown() {
@@ -42,12 +48,7 @@ class UserListViewModelTest {
 
     @Test
     fun initViewModel_getUsersUCSuccess_updateLiveData() {
-        //Given GetUsersUC
-        val subject = PublishSubject.create<List<User>>()
-        whenever(getUsersUC.getObservable(any()))
-            .thenReturn(subject)
-
-        //When viewModel is initialized and GetUserUC return with success
+        //Given UserListViewModel init
         userListViewModel = UserListViewModel(getUsersUC, CompositeDisposable())
 
         val stateObserver = LiveDataTestObserver(userListViewModel.screenState).addTo(testDisposables)
@@ -55,6 +56,7 @@ class UserListViewModelTest {
         val usersObserver = LiveDataTestObserver(userListViewModel.users).addTo(testDisposables)
         val messageObserver = LiveDataTestObserver(userListViewModel.message).addTo(testDisposables)
 
+        //When GetUserUC return with success
         subject.onNext(userList)
 
         //Then loading and success are published in screenState
@@ -77,12 +79,7 @@ class UserListViewModelTest {
 
     @Test
     fun initViewModel_getUsersUCError_updateLiveData() {
-        //Given GetUsersUC
-        val subject = PublishSubject.create<List<User>>()
-        whenever(getUsersUC.getObservable(any()))
-            .thenReturn(subject)
-
-        //When viewModel is initialized and GetUserUC return with success
+        //Given UserListViewModel init
         userListViewModel = UserListViewModel(getUsersUC, CompositeDisposable())
 
         val stateObserver = LiveDataTestObserver(userListViewModel.screenState).addTo(testDisposables)
@@ -90,6 +87,7 @@ class UserListViewModelTest {
         val usersObserver = LiveDataTestObserver(userListViewModel.users).addTo(testDisposables)
         val messageObserver = LiveDataTestObserver(userListViewModel.message).addTo(testDisposables)
 
+        //When GetUserUC return error
         subject.onError(error)
 
         //Then loading and error are published in screenState
@@ -112,11 +110,7 @@ class UserListViewModelTest {
 
     @Test
     fun onRefresh_getUsersUCSuccess_updateLiveData() {
-        //Given the UserListViewModel previously initialized with data
-        val subject = PublishSubject.create<List<User>>()
-        whenever(getUsersUC.getObservable(any()))
-            .thenReturn(subject)
-
+        //Given UserListViewModel previously initialized with data
         userListViewModel = UserListViewModel(getUsersUC, CompositeDisposable())
 
         val stateObserver = LiveDataTestObserver(userListViewModel.screenState).addTo(testDisposables)
@@ -151,10 +145,6 @@ class UserListViewModelTest {
     @Test
     fun onTryAgain_getUsersUCSuccess_updateLiveData() {
         //Given the UserListViewModel previously initialized with error
-        val subject = PublishSubject.create<List<User>>()
-        whenever(getUsersUC.getObservable(any()))
-            .thenReturn(subject)
-
         userListViewModel = UserListViewModel(getUsersUC, CompositeDisposable())
 
         val stateObserver = LiveDataTestObserver(userListViewModel.screenState).addTo(testDisposables)

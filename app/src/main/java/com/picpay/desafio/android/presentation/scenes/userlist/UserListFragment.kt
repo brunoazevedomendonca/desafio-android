@@ -39,16 +39,12 @@ class UserListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        (requireActivity() as ScreenContainer).setToolbarTitle(R.string.user_list_screen_title)
-
         binding.lifecycleOwner = this
         binding.viewModel = userListViewModel
 
-        binding.toolbar.setTitle(R.string.user_list_screen_title)
-
         val adapter = UserListAdapter()
-        binding.recyclerView.adapter = adapter
-        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerViewUsers.adapter = adapter
+        binding.recyclerViewUsers.layoutManager = layoutManager
 
         userListViewModel.users.observe(this) {
             adapter.users = it
