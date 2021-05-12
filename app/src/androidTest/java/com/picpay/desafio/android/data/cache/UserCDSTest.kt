@@ -8,6 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.picpay.desafio.android.data.cache.dao.UserDao
 import com.picpay.desafio.android.data.cache.infrastructure.AppDatabase
 import com.picpay.desafio.android.data.cache.model.UserCM
+import com.picpay.domain.exceptions.NoDataException
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import org.junit.After
@@ -76,8 +77,8 @@ class UserCDSTest {
         userDao.insertAll(userCMList).blockingAwait()
 
         //When getUserList is called
-        userDao
-            .getAll()
+        userCDS
+            .getUserList()
             .test()
             //Then the userCM list is returned
             .assertValue(userCMList)
@@ -85,15 +86,15 @@ class UserCDSTest {
     }
 
     @Test
-    fun getUserList_withoutCacheData_returnEmtpyList() {
+    fun getUserList_withoutCacheData_returnNoDataException() {
         //Given no data in cache
 
         //When getUserList is called
-        userDao
-            .getAll()
+        userCDS
+            .getUserList()
             .test()
-            //Then an empty list is returned
-            .assertValue(emptyList())
+            //Then a NoDataException is returned
+            .assertError(NoDataException::class.java)
             .addTo(testDisposables)
     }
 }

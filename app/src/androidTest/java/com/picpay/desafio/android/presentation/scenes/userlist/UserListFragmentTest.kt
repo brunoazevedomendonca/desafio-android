@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.test.annotation.UiThreadTest
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -95,6 +96,7 @@ class UserListFragmentTest : KoinTest {
     }
 
     @Test
+//    @UiThreadTest
     fun onViewCreated_getUsersError_showErrorState() {
         //Given a UserListFragment initialized
         //When an error is posted in users live data
