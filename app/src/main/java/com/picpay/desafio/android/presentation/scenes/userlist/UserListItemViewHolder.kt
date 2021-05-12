@@ -8,7 +8,8 @@ class UserListItemViewHolder(
     private val listItemUserBinding: ListItemUserBinding
 ) : RecyclerView.ViewHolder(listItemUserBinding.root) {
 
-    fun bind(user: User) {
+    fun bind(user: User, onItemClicked: (User) -> Unit) {
         listItemUserBinding.user = user
+        listItemUserBinding.root.setOnClickListener { onItemClicked(user) }
     }
 }

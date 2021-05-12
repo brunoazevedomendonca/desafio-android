@@ -42,7 +42,9 @@ class UserListFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.viewModel = userListViewModel
 
-        val adapter = UserListAdapter()
+        val adapter = UserListAdapter{
+            Toast.makeText(context, "Test", Toast.LENGTH_LONG).show()
+        }
         binding.recyclerViewUsers.adapter = adapter
         binding.recyclerViewUsers.layoutManager = layoutManager
 

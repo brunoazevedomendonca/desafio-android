@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.picpay.desafio.android.databinding.ListItemUserBinding
 import com.picpay.domain.model.User
 
-class UserListAdapter : RecyclerView.Adapter<UserListItemViewHolder>() {
+class UserListAdapter(private val onItemClicked: (User) -> Unit) : RecyclerView.Adapter<UserListItemViewHolder>() {
 
     var users = emptyList<User>()
         set(value) {
@@ -27,7 +27,7 @@ class UserListAdapter : RecyclerView.Adapter<UserListItemViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: UserListItemViewHolder, position: Int) {
-        holder.bind(users[position])
+        holder.bind(users[position], onItemClicked)
     }
 
     override fun getItemCount(): Int = users.size
